@@ -1,4 +1,4 @@
-# Marca d'Água / Watermaker / Filigrana  Package
+# Marca d'Água / Watermaker / Filigrana - Package
 
 --- Português: 
 
