@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:math';
 import 'dart:typed_data';
 import 'dart:ui' as ui;
 
@@ -7,11 +8,20 @@ import 'package:flutter/material.dart';
 Future<File> addWatermarkToImage({
   required File imageFile,
   required List<String> texts,
+  required List<File> saveBackupImage,
 }) async {
   final Uint8List imageBytes = await imageFile.readAsBytes();
   final ui.Codec codec = await ui.instantiateImageCodec(imageBytes);
   final ui.FrameInfo frameInfo = await codec.getNextFrame();
   final ui.Image image = frameInfo.image;
+
+  // Save the original image to a temporary file with a random name
+  final tempDir = Directory.systemTemp;
+  final randomFileName =
+      '${Random().nextInt(min(1000000000, 9999999999)).toString()}.png';
+  final originalImageFile = File('${tempDir.path}/$randomFileName');
+  saveBackupImage.add(originalImageFile);
+  await originalImageFile.writeAsBytes(imageBytes);
 
   final recorder = ui.PictureRecorder();
   final canvas = Canvas(recorder);
@@ -51,10 +61,9 @@ Future<File> addWatermarkToImage({
   final byteData = await img.toByteData(format: ui.ImageByteFormat.png);
   final buffer = byteData!.buffer.asUint8List();
 
-  // Save the watermarked image to a temporary file
-  final tempDir = Directory.systemTemp;
-  final tempFile = File('${tempDir.path}/watermarked_image.png');
-  await tempFile.writeAsBytes(buffer);
-
-  return tempFile;
+  // Save the watermarked image to a temporary file with the same random name plus '_watermarked'
+  final watermarkedImageFile =
+      File('${tempDir.path}/${randomFileName.split('.').first}_watermaked.png');
+  await watermarkedImageFile.writeAsBytes(buffer);
+  return watermarkedImageFile;
 }

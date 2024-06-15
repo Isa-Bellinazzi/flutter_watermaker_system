@@ -1,13 +1,17 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_watermaker_system/src/util/insert_watermaker.dart';
+import 'package:flutter_watermaker_system/src/pages/insert_watermaker_controller.dart';
 
 class DialogInfoWatermaker extends StatefulWidget {
-  List<File> listaDeImagens;
+  InsertWaterMakerController controller;
   Future<File?> Function()? takePhotoOrPickPhoto;
+  File? image;
   DialogInfoWatermaker(
-      {Key? key, this.takePhotoOrPickPhoto, required this.listaDeImagens})
+      {Key? key,
+      this.takePhotoOrPickPhoto,
+      required this.controller,
+      this.image})
       : super(key: key);
 
   @override
@@ -123,30 +127,20 @@ class _DialogInfoWatermakerState extends State<DialogInfoWatermaker> {
           onPressed: () async {
             if (_formKey.currentState!.validate()) {
               Navigator.of(context).pop();
-              final File? imagemOriginal = await widget.takePhotoOrPickPhoto!();
-              if (imagemOriginal != null) {
-                final texts = [
-                  textoTitulo.text,
-                  textoSubtitulo.text,
-                  textoDataCriacao.text,
-                  textoDescricao.text,
-                  textoLogradouro.text,
-                  textoPrecisao.text,
-                  textoLatitude.text,
-                  textoLongitude.text,
-                  textoAutorDaFoto.text,
-                  textoObservacao.text,
-                ];
-                final File imagemComMarcaDagua = await addWatermarkToImage(
-                  imageFile: imagemOriginal,
-                  texts: texts,
-                );
-                widget.listaDeImagens.add(imagemComMarcaDagua);
-
-                setState(() {
-                  widget.listaDeImagens;
-                });
-              }
+              widget.controller.popularDataWatermark(
+                textoTitulo.text ?? '',
+                textoSubtitulo.text ?? '',
+                textoDataCriacao.text ?? '',
+                textoDescricao.text ?? '',
+                textoLogradouro.text ?? '',
+                textoPrecisao.text ?? '',
+                textoLatitude.text ?? '',
+                textoLongitude.text ?? '',
+                textoAutorDaFoto.text ?? '',
+                textoObservacao.text ?? '',
+              );
+              widget.controller.isInsertOrEditWaterMaker(
+                  widget.image, () => widget.takePhotoOrPickPhoto!());
             }
           },
         ),
@@ -155,13 +149,15 @@ class _DialogInfoWatermakerState extends State<DialogInfoWatermaker> {
   }
 }
 
-void showDialogInfoWatermakerWithFunction(BuildContext context,
-    Future<File?> Function()? takePhotoOrPickPhoto, List<File> images) {
+void showDialogInfoWatermakerWithFunction(
+    BuildContext context,
+    Future<File?> Function()? takePhotoOrPickPhoto,
+    InsertWaterMakerController controller) {
   showDialog(
     context: context,
     builder: (BuildContext context) {
       return DialogInfoWatermaker(
-        listaDeImagens: images,
+        controller: controller,
         takePhotoOrPickPhoto: () {
           return takePhotoOrPickPhoto!();
         },
@@ -170,12 +166,14 @@ void showDialogInfoWatermakerWithFunction(BuildContext context,
   );
 }
 
-void showDialogInfoWatermaker(BuildContext context, List<File> images) {
+void showDialogInfoWatermaker(
+    BuildContext context, InsertWaterMakerController controller, File image) {
   showDialog(
     context: context,
     builder: (BuildContext context) {
       return DialogInfoWatermaker(
-        listaDeImagens: images,
+        controller: controller,
+        image: image,
       );
     },
   );

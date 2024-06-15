@@ -60,7 +60,6 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return InsertWatermakerPage(
-      images: images,
       titlePage: 'Inserir Marca da Água',
       pickPhoto: _pickPhoto,
       takePhoto: _takePhoto,
